@@ -27,6 +27,7 @@ jobs:
       - name: Add Helm dependency repos
         run: |
           helm repo add itzg https://itzg.github.io/minecraft-server-charts/
+          helm repo add hashicorp https://helm.releases.hashicorp.com
           helm repo update
 
       - name: Run chart-releaser
