@@ -1,0 +1,14 @@
+{{- if .Values.ingressroute.enabled }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: vault-ingressroute
+spec:
+  routes:
+    - kind: Rule
+      match: {{ print "Host(`" (.Values.ingressroute.host | default "vault.local") "`)" }}
+      services:
+        - kind: Service
+          name: {{ template "vault.fullname" . }}
+          port: {{ .Values.vault.ui.port | default "8200" }}
+{{- end }}
