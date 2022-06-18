@@ -4,6 +4,8 @@ kind: IngressRoute
 metadata:
   name: vault-ingressroute
 spec:
+  entryPoints:
+   - websecure
   routes:
     - kind: Rule
       match: {{ print "Host(`" (.Values.ingressroute.host | default "vault.local") "`)" }}
