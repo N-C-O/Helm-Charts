@@ -18,6 +18,20 @@ entries:
   vault:
   - apiVersion: v2
     appVersion: 1.10.3
+    created: "2022-06-19T02:46:23.310972278Z"
+    dependencies:
+    - name: vault
+      repository: https://helm.releases.hashicorp.com
+      version: 0.19.0
+    description: A Helm chart for HashiCorp Vault run on Kubernetes
+    digest: a5eac57155443dfee3460611578956f1b31416a18d21259d1de53c2b161083d0
+    name: vault
+    type: application
+    urls:
+    - https://github.com/N-C-O/Helm-Charts/releases/download/vault-0.1.1/vault-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 1.10.3
     created: "2022-05-15T15:33:21.331445833Z"
     dependencies:
     - name: vault
@@ -30,4 +44,4 @@ entries:
     urls:
     - https://github.com/N-C-O/Helm-Charts/releases/download/vault-0.1.0/vault-0.1.0.tgz
     version: 0.1.0
-generated: "2022-05-15T15:33:21.331454933Z"
+generated: "2022-06-19T02:46:23.310988979Z"
