@@ -12,16 +12,7 @@ vault:
   injector:
     metrics:
       enabled: true
-    image:
-      repository: "hashicorp/vault-k8s"
-      tag: 0.16.0
-    agentImage:
-      repository: hashicorp/vault
-      tag: 1.10.3
   server:
-    image:
-      repository: "hashicorp/vault"
-      tag: 1.10.3
     auditStorage:
       enabled: true
     standalone:
