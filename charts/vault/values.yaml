@@ -2,26 +2,12 @@ vault:
   global:
     psp:
       enable: true
-      # Annotation for PodSecurityPolicy.
-      # This is a multi-line templated string map, and can also be set as YAML.
-      annotations: |
-        seccomp.security.alpha.kubernetes.io/allowedProfileNames: docker/default,runtime/default
-        apparmor.security.beta.kubernetes.io/allowedProfileNames: runtime/default
-        seccomp.security.alpha.kubernetes.io/defaultProfileName:  runtime/default
-        apparmor.security.beta.kubernetes.io/defaultProfileName:  runtime/default
+    tlsDisable: false
   injector:
+    enabled: true
     metrics:
       enabled: true
-    image:
-      repository: "hashicorp/vault-k8s"
-      tag: 0.16.0
-    agentImage:
-      repository: hashicorp/vault
-      tag: 1.10.3
   server:
-    image:
-      repository: "hashicorp/vault"
-      tag: 1.10.3
     auditStorage:
       enabled: true
     standalone:
