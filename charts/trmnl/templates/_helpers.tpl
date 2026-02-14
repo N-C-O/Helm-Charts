@@ -126,7 +126,7 @@ Return the KEYVALUE_URL for the application
 */}}
 {{- define "trmnl.valkeyUrl" -}}
 {{- if .Values.valkey.enabled }}
-{{- printf "redis://%s-master.%s.svc.cluster.local:6379" (include "trmnl.valkey.fullname" .) .Release.Namespace }}
+{{- printf "redis://%s-primary.%s.svc.cluster.local:6379" (include "trmnl.valkey.fullname" .) .Release.Namespace }}
 {{- else }}
 {{- "" }}
 {{- end }}
