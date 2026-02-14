@@ -108,7 +108,7 @@ Return the DATABASE_URL for the application
 */}}
 {{- define "trmnl.databaseUrl" -}}
 {{- if .Values.db.internal.enabled }}
-{{- printf "postgres://%s:%s@%s:5432/%s" .Values.postgresql.auth.username .Values.postgresql.auth.password (include "trmnl.postgresql.fullname" .) .Values.postgresql.auth.database }}
+{{- printf "postgres://%s:%s@%s.%s.svc.cluster.local:5432/%s" .Values.postgresql.auth.username .Values.postgresql.auth.password (include "trmnl.postgresql.fullname" .) .Release.Namespace .Values.postgresql.auth.database }}
 {{- else }}
 {{- .Values.db.external.url }}
 {{- end }}
@@ -126,7 +126,7 @@ Return the KEYVALUE_URL for the application
 */}}
 {{- define "trmnl.valkeyUrl" -}}
 {{- if .Values.valkey.enabled }}
-{{- printf "redis://%s-master:6379" (include "trmnl.valkey.fullname" .) }}
+{{- printf "redis://%s-master.%s.svc.cluster.local:6379" (include "trmnl.valkey.fullname" .) .Release.Namespace }}
 {{- else }}
 {{- "" }}
 {{- end }}

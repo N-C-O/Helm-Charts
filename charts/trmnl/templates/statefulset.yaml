@@ -121,6 +121,8 @@ spec:
                 secretKeyRef:
                   name: {{ include "trmnl.secretName" . }}
                   key: DATABASE_URL
+            - name: API_URI
+              value: {{ .Values.terminus.apiUri | quote }}
             - name: APP_SECRET
               valueFrom:
                 secretKeyRef:
