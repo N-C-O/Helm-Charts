@@ -29,7 +29,7 @@ commonAnnotations: {}
 image:
   registry: ghcr.io
   repository: usetrmnl/terminus
-  tag: ""
+  tag: "0.47.0"
   pullPolicy: IfNotPresent
   pullSecrets: []
 
