@@ -1,0 +1,47 @@
+CHART NAME: {{ .Chart.Name }}
+CHART VERSION: {{ .Chart.Version }}
+APP VERSION: {{ .Chart.AppVersion }}
+
+** Please be patient while the chart is being deployed **
+
+1. Get the application URL by running these commands:
+{{- if .Values.ingress.enabled }}
+  Visit: http{{ if .Values.ingress.tls }}s{{ end }}://{{ .Values.ingress.hostname }}{{ .Values.ingress.path }}
+{{- else if contains "NodePort" .Values.service.type }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "trmnl.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo "Visit http://$NODE_IP:$NODE_PORT to use your application"
+{{- else if contains "LoadBalancer" .Values.service.type }}
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+  kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "trmnl.fullname" . }}
+
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "trmnl.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo "Visit http://$SERVICE_IP:{{ .Values.service.port }} to use your application"
+{{- else if contains "ClusterIP" .Values.service.type }}
+  kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ include "trmnl.fullname" . }} 8080:{{ .Values.service.port }}
+  echo "Visit http://127.0.0.1:8080 to use your application"
+{{- end }}
+
+2. Components deployed:
+   - TRMNL (Terminus) application (StatefulSet)
+   {{- if .Values.sidekiq.enabled }}
+   - Sidekiq background worker (sidecar)
+   {{- end }}
+   {{- if .Values.db.internal.enabled }}
+   - PostgreSQL database (Bitnami subchart)
+   {{- end }}
+   {{- if .Values.valkey.enabled }}
+   - Valkey key-value store (Bitnami subchart)
+   {{- end }}
+
+{{- if not .Values.ingress.enabled }}
+
+3. Ingress is DISABLED. If you plan to use an external ingress controller (e.g. Traefik IngressRoute),
+   configure it to point to the service: {{ include "trmnl.fullname" . }}:{{ .Values.service.port }}
+{{- end }}
+
+{{- if and (eq .Values.terminus.appSecret "changeme") (not .Values.terminus.existingSecret) }}
+
+WARNING: You are using the default APP_SECRET value. This is insecure for production use.
+         Please set terminus.appSecret to a strong random value or use terminus.existingSecret.
+{{- end }}
