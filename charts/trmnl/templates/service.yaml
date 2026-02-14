@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "trmnl.fullname" . }}
+  labels:
+    {{- include "trmnl.labels" . | nindent 4 }}
+    app.kubernetes.io/component: terminus
+  {{- with (merge (.Values.service.annotations | default dict) (.Values.commonAnnotations | default dict)) }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "trmnl.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: terminus
