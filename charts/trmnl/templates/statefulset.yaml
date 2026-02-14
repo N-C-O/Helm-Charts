@@ -1,0 +1,191 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "trmnl.fullname" . }}
+  labels:
+    {{- include "trmnl.labels" . | nindent 4 }}
+    app.kubernetes.io/component: terminus
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  serviceName: {{ include "trmnl.fullname" . }}
+  replicas: {{ .Values.replicaCount }}
+  {{- with .Values.updateStrategy }}
+  updateStrategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "trmnl.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: terminus
+  template:
+    metadata:
+      annotations:
+        checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "trmnl.labels" . | nindent 8 }}
+        app.kubernetes.io/component: terminus
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "trmnl.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: terminus
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: {{ include "trmnl.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.terminus.hanamiPort }}
+              protocol: TCP
+          env:
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "trmnl.configmapName" . }}
+                  key: TZ
+            - name: APP_SETUP
+              value: {{ .Values.terminus.appSetup | quote }}
+            - name: API_URI
+              value: {{ .Values.terminus.apiUri | quote }}
+            - name: HANAMI_PORT
+              value: {{ .Values.terminus.hanamiPort | quote }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "trmnl.secretName" . }}
+                  key: DATABASE_URL
+            - name: APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "trmnl.secretName" . }}
+                  key: APP_SECRET
+            - name: RACK_ATTACK_ALLOWED_SUBNETS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "trmnl.configmapName" . }}
+                  key: RACK_ATTACK_ALLOWED_SUBNETS
+            {{- if .Values.valkey.enabled }}
+            - name: KEYVALUE_URL
+              value: {{ include "trmnl.valkeyUrl" . | quote }}
+            {{- end }}
+            {{- with .Values.terminus.extraEnvVars }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: data
+              mountPath: /app/public/uploads
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- if .Values.sidekiq.enabled }}
+        - name: sidekiq
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: {{ include "trmnl.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["bundle", "exec", "sidekiq", "-r", "./config/sidekiq.rb"]
+          env:
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "trmnl.configmapName" . }}
+                  key: TZ
+            - name: API_URI
+              value: {{ .Values.terminus.apiUri | quote }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "trmnl.secretName" . }}
+                  key: DATABASE_URL
+            - name: APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "trmnl.secretName" . }}
+                  key: APP_SECRET
+            - name: RACK_ATTACK_ALLOWED_SUBNETS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "trmnl.configmapName" . }}
+                  key: RACK_ATTACK_ALLOWED_SUBNETS
+            {{- if .Values.valkey.enabled }}
+            - name: KEYVALUE_URL
+              value: {{ include "trmnl.valkeyUrl" . | quote }}
+            {{- end }}
+            {{- with .Values.terminus.extraEnvVars }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: data
+              mountPath: /app/public/uploads
+          {{- end }}
+          {{- with .Values.sidekiq.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  {{- if .Values.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          {{- include "trmnl.labels" . | nindent 10 }}
+          app.kubernetes.io/component: terminus
+        {{- with .Values.persistence.annotations }}
+        annotations:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      spec:
+        accessModes:
+          {{- range .Values.persistence.accessModes }}
+          - {{ . | quote }}
+          {{- end }}
+        {{- if .Values.persistence.storageClass }}
+        {{- if (eq "-" .Values.persistence.storageClass) }}
+        storageClassName: ""
+        {{- else }}
+        storageClassName: {{ .Values.persistence.storageClass | quote }}
+        {{- end }}
+        {{- else if .Values.global.storageClass }}
+        storageClassName: {{ .Values.global.storageClass | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size | quote }}
+  {{- end }}
