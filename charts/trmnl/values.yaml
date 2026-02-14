@@ -1,0 +1,299 @@
+## @section Global parameters
+## @param global.imageRegistry Global Docker image registry
+## @param global.imagePullSecrets Global Docker registry secret names as an array
+## @param global.storageClass Global StorageClass for Persistent Volume(s)
+##
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+## @section Common parameters
+## @param nameOverride String to partially override common.names.fullname
+## @param fullnameOverride String to fully override common.names.fullname
+## @param commonLabels Labels to add to all deployed objects
+## @param commonAnnotations Annotations to add to all deployed objects
+##
+nameOverride: ""
+fullnameOverride: ""
+commonLabels: {}
+commonAnnotations: {}
+
+## @section TRMNL image parameters
+## @param image.registry TRMNL image registry
+## @param image.repository TRMNL image repository
+## @param image.tag TRMNL image tag (immutable tags are recommended)
+## @param image.pullPolicy TRMNL image pull policy
+## @param image.pullSecrets TRMNL image pull secrets
+##
+image:
+  registry: ghcr.io
+  repository: usetrmnl/terminus
+  tag: ""
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+## @section TRMNL application parameters
+##
+terminus:
+  ## @param terminus.apiUri Public URL of the TRMNL application
+  ##
+  apiUri: "https://terminus.example.com"
+  ## @param terminus.appSetup Enable initial application setup on first run
+  ##
+  appSetup: true
+  ## @param terminus.hanamiPort Port the Hanami application server listens on
+  ##
+  hanamiPort: 2345
+  ## @param terminus.timezone Timezone for the application (TZ format)
+  ##
+  timezone: "America/New_York"
+  ## @param terminus.rackAttackAllowedSubnets Comma-separated subnets to bypass rate limiting
+  ##
+  rackAttackAllowedSubnets: "10.42.0.0/16"
+  ## @param terminus.appSecret Application secret key for signing/encryption
+  ## NOTE: Change this in production!
+  ##
+  appSecret: "changeme"
+  ## @param terminus.existingSecret Name of an existing secret containing DATABASE_URL and APP_SECRET keys
+  ## If set, the chart will not create its own secret
+  ##
+  existingSecret: ""
+  ## @param terminus.extraEnvVars Array of extra environment variables to pass to the TRMNL containers
+  ## e.g:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: "bar"
+  ##
+  extraEnvVars: []
+
+## @section Sidekiq worker parameters
+##
+sidekiq:
+  ## @param sidekiq.enabled Enable sidekiq background job worker as a sidecar container
+  ##
+  enabled: true
+  ## @param sidekiq.resources Resource requests and limits for the sidekiq container
+  ##
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+## @section TRMNL StatefulSet parameters
+## @param replicaCount Number of TRMNL replicas to deploy
+##
+replicaCount: 1
+
+## @param updateStrategy.type StatefulSet update strategy type
+## ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+##
+updateStrategy:
+  type: RollingUpdate
+
+## @param podAnnotations Annotations for TRMNL pods
+## @param podLabels Extra labels for TRMNL pods
+##
+podAnnotations: {}
+podLabels: {}
+
+## @param podSecurityContext Security context for the TRMNL pod
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+##
+podSecurityContext:
+  fsGroup: 1000
+
+## @param securityContext Security context for the TRMNL containers
+##
+securityContext: {}
+
+## @param resources Resource requests and limits for the main TRMNL container
+##
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+## @param nodeSelector Node labels for pod assignment
+## @param tolerations Tolerations for pod assignment
+## @param affinity Affinity for pod assignment
+##
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+## @section Persistence parameters
+##
+persistence:
+  ## @param persistence.enabled Enable persistence for uploads using PVC (via volumeClaimTemplates)
+  ##
+  enabled: true
+  ## @param persistence.storageClass PVC Storage Class for uploads volume
+  ## If set to "-", storageClassName is set to "", disabling dynamic provisioning
+  ## If undefined or empty, the default StorageClass is used
+  ##
+  storageClass: ""
+  ## @param persistence.accessModes Persistent Volume access modes
+  ##
+  accessModes:
+    - ReadWriteOnce
+  ## @param persistence.size PVC Storage Request for uploads volume
+  ##
+  size: 2Gi
+  ## @param persistence.annotations Additional custom annotations for the PVC
+  ##
+  annotations: {}
+
+## @section Service parameters
+##
+service:
+  ## @param service.type Kubernetes Service type
+  ##
+  type: ClusterIP
+  ## @param service.port TRMNL service HTTP port
+  ##
+  port: 80
+  ## @param service.annotations Additional custom annotations for TRMNL service
+  ##
+  annotations: {}
+
+## @section Ingress parameters
+##
+ingress:
+  ## @param ingress.enabled Enable ingress record generation for TRMNL
+  ## Set to false if you plan to use an external ingress solution (e.g. Traefik IngressRoute)
+  ##
+  enabled: false
+  ## @param ingress.className IngressClass that will be used to implement the Ingress
+  ##
+  className: ""
+  ## @param ingress.annotations Additional annotations for the Ingress resource
+  ##
+  annotations: {}
+  ## @param ingress.hostname Default host for the ingress record
+  ##
+  hostname: terminus.example.com
+  ## @param ingress.path Default path for the ingress record
+  ##
+  path: /
+  ## @param ingress.pathType Ingress path type
+  ##
+  pathType: Prefix
+  ## @param ingress.tls Enable TLS configuration for the host defined at ingress.hostname
+  ##
+  tls: false
+  ## @param ingress.tlsSecretName TLS secret name when ingress.tls is enabled
+  ##
+  tlsSecretName: ""
+  ## @param ingress.extraHosts An array with additional hostname(s) to be covered with the ingress record
+  ## e.g:
+  ## extraHosts:
+  ##   - name: trmnl.local
+  ##     path: /
+  ##
+  extraHosts: []
+  ## @param ingress.extraTls TLS configuration for additional hostname(s)
+  ## e.g:
+  ## extraTls:
+  ##   - hosts:
+  ##       - trmnl.local
+  ##     secretName: trmnl-local-tls
+  ##
+  extraTls: []
+
+## @section ServiceAccount parameters
+##
+serviceAccount:
+  ## @param serviceAccount.create Specifies whether a ServiceAccount should be created
+  ##
+  create: true
+  ## @param serviceAccount.automount Automount service account API credentials
+  ##
+  automount: true
+  ## @param serviceAccount.annotations Annotations to add to the service account
+  ##
+  annotations: {}
+  ## @param serviceAccount.name The name of the service account to use
+  ## If not set and create is true, a name is generated using the fullname template
+  ##
+  name: ""
+
+## @section Database parameters
+##
+db:
+  ## Internal PostgreSQL subchart configuration
+  ##
+  internal:
+    ## @param db.internal.enabled Deploy a PostgreSQL server as subchart
+    ## If disabled, you must provide db.external.url
+    ##
+    enabled: true
+  ## External database configuration
+  ## Only used when db.internal.enabled is false
+  ##
+  external:
+    ## @param db.external.url Full PostgreSQL connection URL
+    ## e.g: postgres://user:password@host:5432/terminus
+    ##
+    url: ""
+
+## @section PostgreSQL subchart parameters
+## ref: https://github.com/bitnami/charts/tree/main/bitnami/postgresql
+##
+postgresql:
+  auth:
+    ## @param postgresql.auth.username Username for the custom user to create
+    ##
+    username: terminus
+    ## @param postgresql.auth.password Password for the custom user
+    ##
+    password: terminus
+    ## @param postgresql.auth.database Name for a custom database to create
+    ##
+    database: terminus
+  primary:
+    persistence:
+      ## @param postgresql.primary.persistence.enabled Enable PostgreSQL persistence using PVC
+      ##
+      enabled: true
+      ## @param postgresql.primary.persistence.size PVC Storage Request for PostgreSQL volume
+      ##
+      size: 5Gi
+
+## @section Valkey (Redis-compatible) subchart parameters
+## ref: https://github.com/bitnami/charts/tree/main/bitnami/valkey
+##
+valkey:
+  ## @param valkey.enabled Deploy a Valkey server as subchart
+  ## If disabled, you must provide an external Redis/Valkey URL via terminus.extraEnvVars
+  ##
+  enabled: true
+  ## @param valkey.architecture Valkey architecture (standalone or replication)
+  ##
+  architecture: standalone
+  auth:
+    ## @param valkey.auth.enabled Enable Valkey authentication
+    ##
+    enabled: false
+  master:
+    persistence:
+      ## @param valkey.master.persistence.enabled Enable Valkey persistence using PVC
+      ##
+      enabled: false
+    resources:
+      ## @param valkey.master.resources.requests Resource requests for Valkey
+      ##
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      ## @param valkey.master.resources.limits Resource limits for Valkey
+      ##
+      limits:
+        cpu: 500m
+        memory: 512Mi
