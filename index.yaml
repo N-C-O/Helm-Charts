@@ -29,6 +29,34 @@ entries:
     urls:
     - https://github.com/N-C-O/Helm-Charts/releases/download/minecraft-0.1.0/minecraft-0.1.0.tgz
     version: 0.1.0
+  sim:
+  - annotations:
+      category: AI/ML Platform
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-03-29T04:58:41.079763633Z"
+    description: A Helm chart for Sim - AI agent workflow platform
+    digest: d8ab3c0ef93672c1e571c94461043448a5f310797637160ef0dd0e5c3a8e073a
+    home: https://sim.ai
+    icon: https://raw.githubusercontent.com/simstudioai/sim/main/apps/sim/public/logo/primary/primary.svg
+    keywords:
+    - ai
+    - workflow
+    - automation
+    - agents
+    - nextjs
+    maintainers:
+    - email: help@sim.ai
+      name: Sim Team
+      url: https://sim.ai
+    name: sim
+    sources:
+    - https://github.com/simstudioai/sim
+    type: application
+    urls:
+    - https://github.com/N-C-O/Helm-Charts/releases/download/sim-0.1.0/sim-0.1.0.tgz
+    version: 0.1.0
   trmnl:
   - apiVersion: v2
     appVersion: 1.7.5
@@ -205,4 +233,4 @@ entries:
     urls:
     - https://github.com/N-C-O/Helm-Charts/releases/download/vault-0.1.0/vault-0.1.0.tgz
     version: 0.1.0
-generated: "2026-02-14T05:56:29.076109237Z"
+generated: "2026-03-29T04:58:41.079789171Z"
