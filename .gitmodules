@@ -1,3 +1,4 @@
 [submodule "externals/sim"]
 	path = externals/sim
 	url = git@github.com:Aries0d0f/sim.git
+	branch = orphan/modified
